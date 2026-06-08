@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asilum 1000 Meter - Teror Kegelapan</title>
+    <title>Asilum Maut: Johan Liebert Chase</title>
     <style>
         body {
             margin: 0; overflow: hidden; background-color: #000;
@@ -11,60 +11,61 @@
         }
         #blocker {
             position: absolute; width: 100%; height: 100%;
-            background: radial-gradient(circle, #220000 0%, #000000 100%);
+            background: radial-gradient(circle, #1a0000 0%, #000000 100%);
             color: #ff3333; display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center; z-index: 10; cursor: pointer;
         }
         #crosshair {
             position: absolute; top: 50%; left: 50%; width: 6px; height: 6px;
-            background-color: rgba(255, 0, 0, 0.5); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none;
+            background-color: rgba(255, 0, 0, 0.6); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none;
         }
         #ui-container {
             position: absolute; bottom: 20px; left: 20px; color: #aaa; font-size: 16px; pointer-events: none;
-            background: rgba(0,0,0,0.6); padding: 15px; border-radius: 5px; border: 1px solid #333;
+            background: rgba(0,0,0,0.75); padding: 15px; border-radius: 5px; border: 1px solid #444;
         }
-        .bar-bg { width: 150px; height: 10px; background-color: #333; margin-top: 5px; margin-bottom: 10px; border-radius: 3px;}
-        #battery-bar { width: 100%; height: 100%; background-color: #00ff00; border-radius: 3px; transition: width 0.1s; }
-        #stamina-container { display: none; } /* Terkunci sampai 200m */
-        #stamina-bar { width: 100%; height: 100%; background-color: #0088ff; border-radius: 3px; }
+        .bar-bg { width: 160px; height: 12px; background-color: #222; margin-top: 5px; margin-bottom: 10px; border: 1px solid #555; }
+        #battery-bar { width: 100%; height: 100%; background-color: #00ff00; }
+        #stamina-container { display: none; } 
+        #stamina-bar { width: 100%; height: 100%; background-color: #0088ff; }
         #game-over {
             position: absolute; width: 100%; height: 100%; background: #000;
             color: #ff0000; display: none; flex-direction: column; justify-content: center;
-            align-items: center; z-index: 20; font-size: 2.5rem; text-shadow: 0 0 15px #ff0000;
+            align-items: center; z-index: 20; text-align: center;
         }
     </style>
 </head>
 <body>
 
     <div id="game-over">
-        <h1>KAMU MATI DIKUNYAH MONSTER</h1>
-        <p style="font-size: 1.2rem; color: #666;">Refresh halaman (F5) untuk mencoba lagi...</p>
+        <h1 style="font-size: 3rem; text-shadow: 0 0 20px #ff0000; margin-bottom: 5px;">JOHAN MENEMUKANMU</h1>
+        <p style="color: #666; font-size: 1.2rem;">"Bagi manusia, kematian hanyalah kepastian yang tertunda..."</p>
+        <p style="margin-top: 30px; color: #888; font-size: 1rem;">Tekan F5 (Refresh) untuk mengulang takdir.</p>
     </div>
 
     <div id="blocker">
-        <h1 style="font-size: 3.5rem; margin-bottom: 5px; letter-spacing: 5px; text-shadow: 0 0 10px #ff0000;">LORONG 1000 METER</h1>
-        <p style="font-size: 1.2rem; color: #bbb;">[ KLIK UNTUK MASUK ]</p>
-        <div style="margin-top: 30px; color: #888; font-size: 0.9rem; border: 1px dashed #555; padding: 15px; text-align: left;">
-            KONTROL:<br>
-            - W, A, S, D : Bergerak<br>
-            - MOUSE : Melihat sekitar<br>
-            - SHIFT KIRI : Lari (Terbuka setelah 200m)<br>
-            - F : Senter On/Off
+        <h1 style="font-size: 3.5rem; margin-bottom: 5px; letter-spacing: 4px; text-shadow: 0 0 15px #ff0000;">ASILUM MAUT</h1>
+        <p style="font-size: 1.2rem; color: #bbb;">[ KLIK UNTUK MEMULAI PELARIAN ]</p>
+        <div style="margin-top: 30px; color: #999; font-size: 0.9rem; border: 1px dashed #555; padding: 15px; text-align: left; line-height: 1.6;">
+            <b>NAVIGASI:</b><br>
+            • W, A, S, D = Bergerak (Skala Manusia)<br>
+            • MOUSE = Mengarahkan Pandangan<br>
+            • SHIFT KIRI = Lari Kilat (Terbuka di 500m)<br>
+            • F = Saklar Senter
         </div>
     </div>
     
     <div id="crosshair"></div>
     
     <div id="ui-container">
-        <div>Jarak Ditempuh: <span id="ui-distance" style="color: #fff; font-weight: bold;">0</span> / 1000 m</div>
-        <hr style="border-color: #333; margin: 10px 0;">
-        <div>Baterai Senter: <span id="ui-bat-text">100%</span></div>
+        <div>Progress Pelarian: <span id="ui-distance" style="color: #fff; font-weight: bold;">0</span> / 1000 m</div>
+        <hr style="border-color: #444; margin: 10px 0;">
+        <div>Daya Senter: <span id="ui-bat-text">100%</span></div>
         <div class="bar-bg"><div id="battery-bar"></div></div>
         
         <div id="stamina-container">
             <div>Stamina Lari: <span id="ui-stam-text">100%</span></div>
             <div class="bar-bg"><div id="stamina-bar"></div></div>
-            <div id="ui-warn" style="color: #ff3333; font-size: 11px; display: none;">Lelah! Tunggu Pulih 25%</div>
+            <div id="ui-warn" style="color: #ff3333; font-size: 11px; display: none; font-weight: bold;">LELAH! Tunggu Pulih 25%</div>
         </div>
     </div>
 
@@ -87,24 +88,23 @@
         const velocity = new THREE.Vector3();
         const direction = new THREE.Vector3();
 
-        // Gameplay mekanik
+        // Gameplay state
         let distanceTraveled = 0;
         let battery = 100;
         let stamina = 100;
         let canSprint = true;
         let flashlightOn = true;
-        const START_Z = 495; // Pemain mulai dari ujung belakang lorong
+        const START_Z = 500; // Mulai dari ujung 0 meter
 
-        // Entities & Lights
         let flashlight, ambientLight, ceilingLights = [];
         let monster = null;
         let monsterActive = false;
-        let gurneyBoxes = []; // Untuk deteksi tabrakan (Collision)
+        let collisionBoxes = []; // Penyimpan fisik rintangan keras
 
-        // Audio sintetis
-        let audioCtx, horrorDrone, chaseOsc;
+        // Audio
+        let audioCtx, droneNode, heartBeatNode;
 
-        // UI Elements
+        // UI
         const blocker = document.getElementById('blocker');
         const uiDistance = document.getElementById('ui-distance');
         const uiBatText = document.getElementById('ui-bat-text');
@@ -121,10 +121,11 @@
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x010102);
-            scene.fog = new THREE.FogExp2(0x010102, 0.2); // Kabut tebal agar tidak kelihatan ujungnya
+            scene.fog = new THREE.FogExp2(0x010102, 0.22); // Kabut pekat asilum
 
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 60);
-            camera.position.set(0, 1.7, START_Z); // Mulai di koordinat Z positif, maju ke arah Z negatif
+            // Perbaikan Kamera: Naik ke tinggi mata manusia sejati (1.85m)
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 45);
+            camera.position.set(0, 1.85, START_Z);
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -134,173 +135,220 @@
             controls = new PointerLockControls(camera, document.body);
             blocker.addEventListener('click', () => {
                 controls.lock();
-                startHorrorAudio();
+                initSynthAudio();
             });
             controls.addEventListener('lock', () => blocker.style.display = 'none');
             controls.addEventListener('unlock', () => { if(gameOverScreen.style.display !== 'flex') blocker.style.display = 'flex'; });
 
             setupInput();
 
-            // Lighting
-            ambientLight = new THREE.AmbientLight(0x010103);
+            ambientLight = new THREE.AmbientLight(0x020204);
             scene.add(ambientLight);
 
-            flashlight = new THREE.SpotLight(0xfff5df, 4, 25, Math.PI / 5, 0.6, 1.2);
+            flashlight = new THREE.SpotLight(0xfff6e0, 4.5, 26, Math.PI / 4.5, 0.5, 1.2);
             flashlight.castShadow = true;
             scene.add(flashlight);
             flashlight.target = new THREE.Object3D();
             scene.add(flashlight.target);
 
-            // Buat Dunianya (Lorong 1000 Meter)
-            buildMegaHospital();
+            buildAsylumEnvironment();
 
             window.addEventListener('resize', onWindowResize);
         }
 
-        function createProceduralTexture() {
+        // Generate tekstur dinding semen rumah sakit tua otomatis
+        function generateWallTexture() {
             const canvas = document.createElement('canvas');
             canvas.width = 512; canvas.height = 512;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#42493d'; ctx.fillRect(0, 0, 512, 512);
-            // Efek kotor berlumut
-            for (let i = 0; i < 150; i++) {
-                ctx.fillStyle = `rgba(15, 20, 10, ${Math.random() * 0.25})`;
-                ctx.fillRect(Math.random()*512, Math.random()*512, Math.random()*120, Math.random()*120);
+            ctx.fillStyle = '#3a3f35'; ctx.fillRect(0, 0, 512, 512); // Hijau asilum kusam
+            
+            // Pola lumut kotor
+            for(let i=0; i<120; i++){
+                ctx.fillStyle = `rgba(15,20,12,${Math.random()*0.3})`;
+                ctx.fillRect(Math.random()*512, Math.random()*512, Math.random()*150, Math.random()*150);
             }
-            // Bercak darah
-            for (let i = 0; i < 12; i++) {
-                ctx.fillStyle = `rgba(80, 0, 0, ${Math.random() * 0.5})`;
-                ctx.beginPath(); ctx.arc(Math.random()*512, Math.random()*512, Math.random()*35, 0, Math.PI*2); ctx.fill();
+            // Retakan & Noda rembesan air/darah kering
+            for(let i=0; i<8; i++){
+                ctx.fillStyle = `rgba(50,5,5,${Math.random()*0.4})`;
+                ctx.beginPath(); ctx.arc(Math.random()*512, Math.random()*512, Math.random()*40, 0, Math.PI*2); ctx.fill();
             }
-            const texture = new THREE.CanvasTexture(canvas);
-            return texture;
+            return new THREE.CanvasTexture(canvas);
         }
 
-        function buildMegaHospital() {
-            const wallTex = createProceduralTexture();
-            const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.9 });
-            const floorMat = new THREE.MeshStandardMaterial({ color: 0x161616, roughness: 0.5 });
-            const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x0f0f0f });
+        function buildAsylumEnvironment() {
+            const wallTex = generateWallTexture();
+            const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.95 });
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.5 });
+            const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0a });
 
-            // Panjang lorong 1000 Unit (dari Z = 500 sampai Z = -500)
-            const floorGeo = new THREE.PlaneGeometry(6, 1000);
+            // Lorong 1000 meter (Z: 500 s/d -500)
+            const floorGeo = new THREE.PlaneGeometry(5, 1000); // Dipersempit ke 5m agar proporsional
             const floor = new THREE.Mesh(floorGeo, floorMat);
-            floor.rotation.x = -Math.PI / 2;
-            floor.receiveShadow = true;
-            scene.add(floor);
+            floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
 
             const ceiling = new THREE.Mesh(floorGeo, ceilingMat);
-            ceiling.rotation.x = Math.PI / 2;
-            ceiling.position.y = 4;
-            scene.add(ceiling);
+            ceiling.rotation.x = Math.PI/2; ceiling.position.y = 3.8; scene.add(ceiling);
 
-            // Dinding Kiri & Kanan (Panjang 1000)
-            const wallGeo = new THREE.PlaneGeometry(1000, 4);
+            const wallGeo = new THREE.PlaneGeometry(1000, 3.8);
             const leftWall = new THREE.Mesh(wallGeo, wallMat);
-            leftWall.position.set(-3, 2, 0); leftWall.rotation.y = Math.PI / 2;
-            leftWall.receiveShadow = true; scene.add(leftWall);
+            leftWall.position.set(-2.5, 1.9, 0); leftWall.rotation.y = Math.PI/2; leftWall.receiveShadow = true; scene.add(leftWall);
 
             const rightWall = new THREE.Mesh(wallGeo, wallMat);
-            rightWall.position.set(3, 2, 0); rightWall.rotation.y = -Math.PI / 2;
-            rightWall.receiveShadow = true; scene.add(rightWall);
+            rightWall.position.set(2.5, 1.9, 0); rightWall.rotation.y = -Math.PI/2; rightWall.receiveShadow = true; scene.add(rightWall);
 
-            // Tembok Penutup Ujung Belakang & Depan
-            const capGeo = new THREE.PlaneGeometry(6, 4);
-            const backCap = new THREE.Mesh(capGeo, wallMat);
-            backCap.position.set(0, 2, 500); backCap.rotation.y = Math.PI;
-            scene.add(backCap);
-
-            const frontCap = new THREE.Mesh(capGeo, wallMat);
-            frontCap.position.set(0, 2, -500);
-            scene.add(frontCap);
-
-            // Taruh Lampu Kedip Atas & Kasur Rumah Sakit di sepanjang 1000 Meter secara acak
-            for (let z = 450; z > -480; z -= 35) {
-                // Lampu langit-langit berkala
-                let light = new THREE.PointLight(0xccffcc, 1.2, 10);
-                light.position.set(0, 3.8, z);
+            // Spawn Lampu & Macam-Macam Rintangan Fisik Sepanjang Lorong
+            for (let z = 470; z > -490; z -= 25) {
+                // Lampu gantung plafon
+                let light = new THREE.PointLight(0xd9ebd3, 1.3, 11);
+                light.position.set(0, 3.6, z);
                 scene.add(light);
                 ceilingLights.push(light);
 
-                // Buat Kasur (Gurney) penghalang jalan secara zig-zag
-                let xOffset = (Math.random() > 0.5) ? -1.5 : 1.5;
-                if(Math.random() > 0.2) {
-                    createPhysicalGurney(xOffset, 0, z + (Math.random()*5));
+                // Spawn variasi objek penghalang acak
+                let rand = Math.random();
+                let xPos = (Math.random() > 0.5) ? -1.1 : 1.1;
+
+                if (rand < 0.3) {
+                    createMedicalTable(xPos, z);
+                } else if (rand < 0.6) {
+                    createDocumentRack(xPos * 0.8, z);
+                } else if (rand < 0.85) {
+                    createWheelchairObstacle(xPos, z);
                 }
             }
         }
 
-        // MEMBUAT BENDA YANG MEMILIKI FISIK (TIDAK BISA DITEMBUS)
-        function createPhysicalGurney(x, y, z) {
+        // ================= PREFAB RINTANGAN FISIK (ANTI-TEMBUS) =================
+        function registerCollision(meshGroup) {
+            const box = new THREE.Box3().setFromObject(meshGroup);
+            collisionBoxes.push(box);
+        }
+
+        function createMedicalTable(x, z) {
             const group = new THREE.Group();
-            const ironMat = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.7 });
-            const matMat = new THREE.MeshStandardMaterial({ color: 0x3d453b });
-
-            const base = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.2, 2.6), matMat);
-            base.position.y = 0.8; base.castShadow = true; group.add(base);
-
-            const legGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.8);
-            const legsPos = [[0.5, 0.4, 1], [-0.5, 0.4, 1], [0.5, 0.4, -1], [-0.5, 0.4, -1]];
-            legsPos.forEach(p => {
-                const leg = new THREE.Mesh(legGeo, ironMat);
-                leg.position.set(p[0], p[1], p[2]); leg.castShadow = true; group.add(leg);
+            const mat = new THREE.MeshStandardMaterial({ color: 0x4a4a4a, roughness: 0.6 });
+            const top = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.1, 1.0), mat);
+            top.position.y = 0.9; top.castShadow = true; group.add(top);
+            
+            const legGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.9);
+            const offsets = [[0.6, 0.45, 0.4], [-0.6, 0.45, 0.4], [0.6, 0.45, -0.4], [-0.6, 0.45, -0.4]];
+            offsets.forEach(o => {
+                const leg = new THREE.Mesh(legGeo, mat); leg.position.set(o[0], o[1], o[2]); group.add(leg);
             });
-
-            group.position.set(x, y, z);
-            scene.add(group);
-
-            // BUAT BOUNDING BOX UNTUK DETEKSI TABRAKAN
-            // Ukuran box dilebihkan sedikit agar pemain terhalang dengan pas
-            const box = new THREE.Box3().setFromObject(group);
-            gurneyBoxes.push(box);
+            group.position.set(x, 0, z); scene.add(group); registerCollision(group);
         }
 
-        function spawnMonster() {
+        function createDocumentRack(x, z) {
+            const group = new THREE.Group();
+            const mat = new THREE.MeshStandardMaterial({ color: 0x2b302c, roughness: 0.8 });
+            const frame = new THREE.Mesh(new THREE.BoxGeometry(0.8, 2.2, 0.8), mat); // Rak tinggi menghalangi pandangan
+            frame.position.y = 1.1; frame.castShadow = true; group.add(frame);
+            group.position.set(x, 0, z); scene.add(group); registerCollision(group);
+        }
+
+        function createWheelchairObstacle(x, z) {
+            const group = new THREE.Group();
+            const metalMat = new THREE.MeshStandardMaterial({ color: 0x555555 });
+            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+            
+            // Dudukan kursi roda
+            const seat = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.1, 0.9), metalMat);
+            seat.position.y = 0.6; group.add(seat);
+            // Sandaran
+            const back = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.8, 0.1), metalMat);
+            back.position.set(0, 1.0, 0.4); group.add(back);
+            // Roda Besar Kiri Kanan
+            const wheelGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.1, 12);
+            const wL = new THREE.Mesh(wheelGeo, wheelMat); wL.rotation.z = Math.PI/2; wL.position.set(-0.5, 0.4, 0); group.add(wL);
+            const wR = new THREE.Mesh(wheelGeo, wheelMat); wR.rotation.z = Math.PI/2; wR.position.set(0.5, 0.4, 0); group.add(wR);
+
+            group.position.set(x, 0, z); group.rotation.y = Math.random() * Math.PI; // Rotasi acak berantakan
+            scene.add(group); registerCollision(group);
+        }
+
+        // ================= MODELING 3D PROCEDURAL: JOHAN LIBERT =================
+        function spawnJohanLiebert() {
             monsterActive = true;
-            staminaContainer.style.display = 'block'; // Unlock UI stamina lari
+            staminaContainer.style.display = 'block'; // Aktifkan antarmuka lari stamina
 
-            // Visual Monster: Sosok Bayangan Hitam Tinggi dengan Mata Merah Menyala
-            const monsterGroup = new THREE.Group();
-            const bodyMat = new THREE.MeshBasicMaterial({ color: 0x050505 });
-            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const johanGroup = new THREE.Group();
+            
+            // Palette warna baju johan sesuai gambar
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffe1c4, roughness: 0.7 });
+            const hairMat = new THREE.MeshStandardMaterial({ color: 0xdfcb91, roughness: 0.4 }); // Rambut Pirang Klasik Johan
+            const suitMat = new THREE.MeshStandardMaterial({ color: 0xaf9a82, roughness: 0.8 }); // Jas Tan/Beige Pucat
+            const turtleneckMat = new THREE.MeshStandardMaterial({ color: 0x222225, roughness: 0.9 }); // Turtleneck Hitam/Abu gelap
+            const pantsMat = new THREE.MeshStandardMaterial({ color: 0x6e6256, roughness: 0.8 }); // Celana bahan cokelat kusam
+            const shoeMat = new THREE.MeshStandardMaterial({ color: 0x18181a });
 
-            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 2.5), bodyMat);
-            body.position.y = 1.25; monsterGroup.add(body);
+            // 1. Badan (Jas Panjang)
+            const coat = new THREE.Mesh(new THREE.BoxGeometry(0.65, 1.2, 0.38), suitMat);
+            coat.position.y = 1.3; coat.castShadow = true; johanGroup.add(coat);
 
-            // Mata Merah Menyala
-            const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.06), eyeMat);
-            eyeL.position.set(-0.15, 2.2, -0.3); monsterGroup.add(eyeL);
-            const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.06), eyeMat);
-            eyeR.position.set(0.15, 2.2, -0.3); monsterGroup.add(eyeR);
+            // Collar/Kerah Turtleneck mencuat sedikit di atas jas
+            const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.13, 0.2, 12), turtleneckMat);
+            neck.position.y = 1.95; johanGroup.add(neck);
 
-            // Spawn monster 25 meter di BELAKANG pemain saat ini
-            monsterGroup.position.set(camera.position.x, 0, camera.position.z + 25);
-            scene.add(monsterGroup);
-            monster = monsterGroup;
+            // 2. Kepala Johan
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.32, 0.28), skinMat);
+            head.position.y = 2.15; johanGroup.add(head);
 
-            // Naikkan nada suara ambience jadi panik
-            if(audioCtx) {
-                chaseOsc = audioCtx.createOscillator();
-                const chaseGain = audioCtx.createGain();
-                chaseOsc.type = 'sawtooth';
-                chaseOsc.frequency.setValueAtTime(60, audioCtx.currentTime);
-                chaseGain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                chaseOsc.connect(chaseGain); chaseGain.connect(audioCtx.destination);
-                chaseOsc.start();
-            }
+            // Rambut Belah Tengah Ikonik Johan (Dibuat berlapis dari beberapa box agar bervolume)
+            const hairTop = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.12, 0.3), hairMat);
+            hairTop.position.set(0, 2.31, 0.02); johanGroup.add(hairTop);
+            
+            const hairLeft = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.2, 0.28), hairMat);
+            hairLeft.position.set(-0.13, 2.2, 0.02); johanGroup.add(hairLeft);
+
+            const hairRight = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.2, 0.28), hairMat);
+            hairRight.position.set(0.13, 2.2, 0.02); johanGroup.add(hairRight);
+
+            // Mata Biru Dingin Sayu khas Johan
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0x4a7fa5 });
+            const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.02, 0.02), eyeMat); eyeL.position.set(-0.07, 2.18, -0.14); johanGroup.add(eyeL);
+            const eyeR = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.02, 0.02), eyeMat); eyeR.position.set(0.07, 2.18, -0.14); johanGroup.add(eyeR);
+
+            // 3. Kaki Celana Panjang
+            const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.8, 10), pantsMat);
+            legL.position.set(-0.16, 0.4, 0); johanGroup.add(legL);
+            
+            const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.8, 10), pantsMat);
+            legR.position.set(0.16, 0.4, 0); johanGroup.add(legR);
+
+            // Sepatu Pantofel Hitam
+            const shoeL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.09, 0.26), shoeMat); shoeL.position.set(-0.16, 0.04, -0.06); johanGroup.add(shoeL);
+            const shoeR = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.09, 0.26), shoeMat); shoeR.position.set(0.16, 0.04, -0.06); johanGroup.add(shoeR);
+
+            // Posisi awal spawn: Johan muncul di kejauhan 22 meter di BELAKANG player saat di titik 500m
+            johanGroup.position.set(camera.position.x, 0, camera.position.z + 22);
+            scene.add(johanGroup);
+            monster = johanGroup;
+
+            // Transisi musik ke ritme panik detak jantung kencang
+            if(heartBeatNode) heartBeatNode.gain.setValueAtTime(0.7, audioCtx.currentTime);
         }
 
-        function startHorrorAudio() {
+        function initSynthAudio() {
             if (audioCtx) return;
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            horrorDrone = audioCtx.createOscillator();
-            const droneGain = audioCtx.createGain();
-            const filter = audioCtx.createBiquadFilter();
-            horrorDrone.type = 'sine'; horrorDrone.frequency.setValueAtTime(40, audioCtx.currentTime);
-            filter.type = 'lowpass'; filter.frequency.setValueAtTime(80, audioCtx.currentTime);
-            droneGain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            horrorDrone.connect(filter); filter.connect(droneGain); droneGain.connect(audioCtx.destination);
-            horrorDrone.start();
+            
+            // Low Frequency Ambiance
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(42, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start();
+
+            // Detak Jantung (Muted di awal, kencang saat dikejar)
+            let heartBeat = audioCtx.createOscillator();
+            heartBeatNode = audioCtx.createGain();
+            heartBeat.type = 'triangle';
+            heartBeat.frequency.setValueAtTime(55, audioCtx.currentTime);
+            heartBeatNode.gain.setValueAtTime(0, audioCtx.currentTime); // 0 di awal
+            heartBeat.connect(heartBeatNode); heartBeatNode.connect(audioCtx.destination);
+            heartBeat.start();
         }
 
         function setupInput() {
@@ -311,11 +359,7 @@
                     case 'KeyS': moveBackward = true; break;
                     case 'KeyD': moveRight = true; break;
                     case 'ShiftLeft': isSprinting = true; break;
-                    case 'KeyF': 
-                        if(battery > 0) {
-                            flashlightOn = !flashlightOn;
-                        }
-                        break;
+                    case 'KeyF': if(battery > 0) flashlightOn = !flashlightOn; break;
                 }
             });
             document.addEventListener('keyup', (e) => {
@@ -340,9 +384,7 @@
 
             if (controls.isLocked === true) {
                 const delta = (time - prevTime) / 1000;
-
-                // Simpan posisi sebelum bergerak (untuk pencegahan tembus benda/collision)
-                const oldPosition = camera.position.clone();
+                const oldPos = camera.position.clone();
 
                 velocity.x -= velocity.x * 10.0 * delta;
                 velocity.z -= velocity.z * 10.0 * delta;
@@ -351,143 +393,139 @@
                 direction.x = Number(moveRight) - Number(moveLeft);
                 direction.normalize();
 
-                // SISTEM METERS & STAMINA SPRINT
-                let currentMoveSpeed = 24.0; // Kecepatan jalan biasa
+                // KESEIMBANGAN BARU: Upgrade Kecepatan Player (Terasa nyata & responsif)
+                let currentSpeed = 38.0; // Jalan kaki biasa sekarang jauh lebih cepat dari kemarin
 
                 if (monsterActive && isSprinting && (moveForward || moveLeft || moveRight) && canSprint && stamina > 0) {
-                    currentMoveSpeed = 48.0; // Kecepatan Lari Kilat
-                    stamina -= 22 * delta; // Konsumsi stamina (agak cepat habis)
+                    currentSpeed = 74.0; // Kecepatan Sprint Kilat saat darurat lolos dari Johan
+                    stamina -= 28 * delta; // Konsumsi stamina agak cepat
                     if (stamina <= 0) {
-                        stamina = 0;
-                        canSprint = false; // Lelah total!
+                        stamina = 0; canSprint = false;
                         uiWarn.style.display = 'block';
                     }
                 } else {
-                    // Pemulihan Stamina
                     if (stamina < 100) {
-                        stamina += 10 * delta; // Pulih perlahan (seharga lambat)
-                        if (!canSprint && stamina >= 25) { // Harus pulih minimal 25% (seperempat) baru bisa lari lagi
-                            canSprint = true;
-                            uiWarn.style.display = 'none';
+                        stamina += 12 * delta; // Pemulihan seharga lambat
+                        if (!canSprint && stamina >= 25) { // Harus terisi seperempat (25%) baru bisa lari lagi
+                            canSprint = true; uiWarn.style.display = 'none';
                         }
                     }
                 }
                 uiStamText.innerText = Math.floor(stamina) + "%";
                 staminaBar.style.width = stamina + "%";
-                if(!canSprint) staminaBar.style.backgroundColor = '#ff3333';
-                else staminaBar.style.backgroundColor = '#0088ff';
+                staminaBar.style.backgroundColor = canSprint ? '#0088ff' : '#ff3333';
 
-                if (moveForward || moveBackward) velocity.z -= direction.z * currentMoveSpeed * delta;
-                if (moveLeft || moveRight) velocity.x -= direction.x * currentMoveSpeed * delta;
+                if (moveForward || moveBackward) velocity.z -= direction.z * currentSpeed * delta;
+                if (moveLeft || moveRight) velocity.x -= direction.x * currentSpeed * delta;
 
                 controls.moveRight(-velocity.x * delta);
                 controls.moveForward(-velocity.z * delta);
 
-                // --- SISTEM COLLISION (ANTI-TEMBUS BENDA) ---
-                // Buat kotak imajiner di sekitar posisi baru pemain
+                // --- DETEKSI COLLISION AKURAT (ANTI-TEMBUS BENDA) ---
                 const playerBox = new THREE.Box3(
-                    new THREE.Vector3(camera.position.x - 0.3, 0, camera.position.z - 0.3),
-                    new THREE.Vector3(camera.position.x + 0.3, 3, camera.position.z + 0.3)
+                    new THREE.Vector3(camera.position.x - 0.25, 0, camera.position.z - 0.25),
+                    new THREE.Vector3(camera.position.x + 0.25, 3.5, camera.position.z + 0.25)
                 );
 
-                let isColliding = false;
-                for (let i = 0; i < gurneyBoxes.length; i++) {
-                    if (playerBox.intersectsBox(gurneyBoxes[i])) {
-                        isColliding = true;
-                        break;
+                let hitObstacle = false;
+                for (let i = 0; i < collisionBoxes.length; i++) {
+                    if (playerBox.intersectsBox(collisionBoxes[i])) {
+                        hitObstacle = true; break;
                     }
                 }
 
-                // Batasi juga agar tidak menembus tembok luar lorong kiri/kanan
-                if (camera.position.x > 2.6 || camera.position.x < -2.6 || isColliding) {
-                    // Jika tabrakan, kembalikan posisi ke sebelum melangkah
-                    camera.position.copy(oldPosition);
+                // Proteksi Dinding Samping Kiri/Kanan & Rintangan
+                if (camera.position.x > 2.25 || camera.position.x < -2.25 || hitObstacle) {
+                    camera.position.copy(oldPos); // Batalkan pergerakan instan jika menembus fisik benda
                 }
 
-                // Jaga batas ujung lorong murni 1000m
                 if (camera.position.z > START_Z) camera.position.z = START_Z;
-                if (camera.position.z < -495) {
-                    // MENANG! Jika sampai ujung 1000 meter
-                    alert("Kamu berhasil lolos dari rumah sakit maut!");
-                    controls.unlock();
-                    window.location.reload();
+                
+                // KONDISI MENANG: Lolos 1000 Meter
+                if (camera.position.z < -500) {
+                    alert("Luar biasa! Kamu berhasil mengelabui manipulasi Johan Liebert dan keluar hidup-hidup!");
+                    controls.unlock(); window.location.reload();
                 }
 
-                // Update Jarak Ditempuh dalam Meter
+                // Kalkulasi Jarak Murni (0 sampai 1000 Meter)
                 distanceTraveled = Math.floor(START_Z - camera.position.z);
                 uiDistance.innerText = distanceTraveled;
 
-                // TRIGGER MONSTER JIKA SUDAH BERJALAN 200 METER
-                if (distanceTraveled >= 200 && !monsterActive) {
-                    spawnMonster();
+                // TRIGGER 1: Monster Johan Spawn tepat di jarak 500 Meter
+                if (distanceTraveled >= 500 && !monsterActive) {
+                    spawnJohanLiebert();
                 }
             }
 
             prevTime = time;
 
-            // LOGIKA BATERAI SENTER (AWET TAPI PASTI HABIS)
+            // --- STRATEGI MANAJEMEN BATERAI SENTER (PLOT TWIST) ---
             if (flashlight && flashlightOn) {
                 flashlight.position.copy(camera.position);
                 const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
                 flashlight.target.position.copy(camera.position).add(dir);
 
-                // Pengurangan baterai yang irit (kurang lebih bertahan 3 menit menyala terus)
-                if (battery > 0) {
-                    battery -= 0.5 * (performance.now() - time ? 0.016 : 0.01); 
-                    if(battery < 0) battery = 0;
-                    
-                    batteryBar.style.width = battery + "%";
-                    uiBatText.innerText = Math.floor(battery) + "%";
+                if (distanceTraveled < 500) {
+                    // Sebelum 500m baterai awet sempurna di 100%
+                    battery = 100;
+                    flashlight.intensity = 4.5;
+                } else if (distanceTraveled >= 500 && distanceTraveled < 900) {
+                    // Masuk area Johan: Langsung anjlok mulai dari 60% menuju 0% tepat di 900 meter
+                    let rangeProgress = (distanceTraveled - 500) / 400; // Linear progress dari 500 ke 900
+                    battery = Math.max(0, Math.floor(60 * (1 - rangeProgress)));
 
-                    // Efek kedip saklar bawaan kalau baterai sekarat di bawah 25%
-                    if (battery < 25 && Math.random() > 0.95) {
-                        flashlight.intensity = Math.random() * 0.8;
+                    // Efek senter mulai berkedip-kedip ngeri seiring menipisnya daya menuju 900m
+                    if (battery < 20 && Math.random() > 0.93) {
+                        flashlight.intensity = Math.random() * 0.7;
                     } else {
-                        flashlight.intensity = 4;
+                        flashlight.intensity = 4.5 * (battery / 60); // Semakin redup realistis
                     }
                 } else {
+                    // TEPAT DI 900 METER: Senter mati total kehabisan baterai!
+                    battery = 0;
                     flashlightOn = false;
                     flashlight.intensity = 0;
-                    uiBatText.innerText = "HABIS";
-                    batteryBar.style.width = "0%";
-                    batteryBar.style.backgroundColor = "#ff0000";
                 }
+
+                uiBatText.innerText = battery > 0 ? battery + "%" : "MATI TOTAL";
+                batteryBar.style.width = battery + "%";
+                batteryBar.style.backgroundColor = battery > 25 ? '#00ff00' : '#ff0000';
             } else if (flashlight) {
                 flashlight.intensity = 0;
             }
 
-            // PERGERAKAN AI MONSTER MENGEJAR PEMAIN
+            // --- AI KECERDASAN PERGERAKAN JOHAN LIEBERT ---
             if (monsterActive && monster) {
-                // Monster berjalan konstan mendekati koordinat pemain
-                const monsterSpeed = 4.2; // Sedikit lebih cepat dari jalan kaki biasa pemain, jadi kamu wajib sprint berkala!
-                const deltaSec = 0.016; 
+                // Johan berjalan pelan namun pasti mengejarmu (Kecepatan konstan yang menuntut kamu efisien pakai sprint)
+                const johanSpeed = 6.8; 
+                const deltaSec = 0.016;
 
-                const dirToPlayer = new THREE.Vector3().subVectors(camera.position, monster.position);
-                dirToPlayer.y = 0; // Tetap di lantai
-                dirToPlayer.normalize();
+                const targetDir = new THREE.Vector3().subVectors(camera.position, monster.position);
+                targetDir.y = 0; // Selalu menapak tanah asilum
+                targetDir.normalize();
 
-                monster.position.add(dirToPlayer.multiplyScalar(monsterSpeed * deltaSec));
+                monster.position.add(targetDir.multiplyScalar(johanSpeed * deltaSec));
+                // Johan selalu menatap dingin ke arah kamera player
                 monster.lookAt(camera.position.x, monster.position.y, camera.position.z);
 
-                // Audio Pitching Panik mengikuti jarak monster
-                const dist = monster.position.distanceTo(camera.position);
-                if(chaseOsc) {
-                    chaseOsc.frequency.setValueAtTime(60 + (100 / dist), audioCtx.currentTime);
+                // Dinamika Detak Jantung semakin cepat jika Johan makin mendekat
+                const distToJohan = monster.position.distanceTo(camera.position);
+                if(audioCtx && heartBeatNode) {
+                    // Mengubah modulasi kepanikan detak jantung
+                    heartBeatNode.gain.setValueAtTime(Math.min(0.9, 1.5 / distToJohan), audioCtx.currentTime);
                 }
 
-                // JUMPSCARE / GAME OVER CONDITION
-                if (dist < 1.3) {
+                // GAME OVER: Jika Johan menyentuhmu
+                if (distToJohan < 1.4) {
                     controls.unlock();
                     gameOverScreen.style.display = 'flex';
-                    if (chaseOsc) chaseOsc.stop();
-                    if (horrorDrone) horrorDrone.stop();
                 }
             }
 
-            // Kedipan lampu lorong biasa
-            ceilingLights.forEach(light => {
-                if (Math.random() > 0.98) light.intensity = Math.random() * 2;
-                else if (Math.random() > 0.995) light.intensity = 0;
+            // Kerlipan lampu asilum umum
+            ceilingLights.forEach(l => {
+                if (Math.random() > 0.985) l.intensity = Math.random() * 2.2;
+                else if (Math.random() > 0.997) l.intensity = 0;
             });
 
             renderer.render(scene, camera);
