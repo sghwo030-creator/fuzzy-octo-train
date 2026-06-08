@@ -3,65 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rumah Sakit Jiwa Terbengkalai - 3D</title>
+    <title>Asilum 1000 Meter - Teror Kegelapan</title>
     <style>
         body {
-            margin: 0;
-            overflow: hidden;
-            background-color: #020202;
-            font-family: 'Courier New', Courier, monospace;
-            user-select: none;
+            margin: 0; overflow: hidden; background-color: #000;
+            font-family: 'Courier New', Courier, monospace; user-select: none;
         }
         #blocker {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, #110000 0%, #000000 100%);
-            color: #dd3333;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            z-index: 10;
-            cursor: pointer;
+            position: absolute; width: 100%; height: 100%;
+            background: radial-gradient(circle, #220000 0%, #000000 100%);
+            color: #ff3333; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center; z-index: 10; cursor: pointer;
         }
         #crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 6px;
-            height: 6px;
-            background-color: rgba(255, 0, 0, 0.4);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
+            position: absolute; top: 50%; left: 50%; width: 6px; height: 6px;
+            background-color: rgba(255, 0, 0, 0.5); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none;
         }
-        #ui-status {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            color: #8a8a8a;
-            font-size: 14px;
-            pointer-events: none;
+        #ui-container {
+            position: absolute; bottom: 20px; left: 20px; color: #aaa; font-size: 16px; pointer-events: none;
+            background: rgba(0,0,0,0.6); padding: 15px; border-radius: 5px; border: 1px solid #333;
+        }
+        .bar-bg { width: 150px; height: 10px; background-color: #333; margin-top: 5px; margin-bottom: 10px; border-radius: 3px;}
+        #battery-bar { width: 100%; height: 100%; background-color: #00ff00; border-radius: 3px; transition: width 0.1s; }
+        #stamina-container { display: none; } /* Terkunci sampai 200m */
+        #stamina-bar { width: 100%; height: 100%; background-color: #0088ff; border-radius: 3px; }
+        #game-over {
+            position: absolute; width: 100%; height: 100%; background: #000;
+            color: #ff0000; display: none; flex-direction: column; justify-content: center;
+            align-items: center; z-index: 20; font-size: 2.5rem; text-shadow: 0 0 15px #ff0000;
         }
     </style>
 </head>
 <body>
 
+    <div id="game-over">
+        <h1>KAMU MATI DIKUNYAH MONSTER</h1>
+        <p style="font-size: 1.2rem; color: #666;">Refresh halaman (F5) untuk mencoba lagi...</p>
+    </div>
+
     <div id="blocker">
-        <h1 style="font-size: 3.5rem; margin-bottom: 5px; letter-spacing: 5px; text-shadow: 0 0 10px #ff0000;">ASILUM MAUT</h1>
-        <p style="font-size: 1.2rem; color: #bbb; animation: blink 2s infinite;">[ KLIK UNTUK MASUK ]</p>
-        <div style="margin-top: 40px; color: #666; font-size: 0.9rem; border: 1px dashed #444; padding: 15px;">
+        <h1 style="font-size: 3.5rem; margin-bottom: 5px; letter-spacing: 5px; text-shadow: 0 0 10px #ff0000;">LORONG 1000 METER</h1>
+        <p style="font-size: 1.2rem; color: #bbb;">[ KLIK UNTUK MASUK ]</p>
+        <div style="margin-top: 30px; color: #888; font-size: 0.9rem; border: 1px dashed #555; padding: 15px; text-align: left;">
             KONTROL:<br>
-            W, A, S, D = Bergerak<br>
-            MOUSE = Melihat Sekitar<br>
-            F = Nyalakan/Matikan Senter
+            - W, A, S, D : Bergerak<br>
+            - MOUSE : Melihat sekitar<br>
+            - SHIFT KIRI : Lari (Terbuka setelah 200m)<br>
+            - F : Senter On/Off
         </div>
     </div>
     
     <div id="crosshair"></div>
-    <div id="ui-status">Baterai Senter: 100%</div>
+    
+    <div id="ui-container">
+        <div>Jarak Ditempuh: <span id="ui-distance" style="color: #fff; font-weight: bold;">0</span> / 1000 m</div>
+        <hr style="border-color: #333; margin: 10px 0;">
+        <div>Baterai Senter: <span id="ui-bat-text">100%</span></div>
+        <div class="bar-bg"><div id="battery-bar"></div></div>
+        
+        <div id="stamina-container">
+            <div>Stamina Lari: <span id="ui-stam-text">100%</span></div>
+            <div class="bar-bg"><div id="stamina-bar"></div></div>
+            <div id="ui-warn" style="color: #ff3333; font-size: 11px; display: none;">Lelah! Tunggu Pulih 25%</div>
+        </div>
+    </div>
 
     <script type="importmap">
         {
@@ -77,115 +82,108 @@
         import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
         let camera, scene, renderer, controls;
-        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, isSprinting = false;
         let prevTime = performance.now();
         const velocity = new THREE.Vector3();
         const direction = new THREE.Vector3();
 
-        let flashlight, ambientLight, ceilingLight;
-        let audioCtx, horrorDrone;
+        // Gameplay mekanik
+        let distanceTraveled = 0;
+        let battery = 100;
+        let stamina = 100;
+        let canSprint = true;
         let flashlightOn = true;
+        const START_Z = 495; // Pemain mulai dari ujung belakang lorong
 
+        // Entities & Lights
+        let flashlight, ambientLight, ceilingLights = [];
+        let monster = null;
+        let monsterActive = false;
+        let gurneyBoxes = []; // Untuk deteksi tabrakan (Collision)
+
+        // Audio sintetis
+        let audioCtx, horrorDrone, chaseOsc;
+
+        // UI Elements
         const blocker = document.getElementById('blocker');
-        const uiStatus = document.getElementById('ui-status');
+        const uiDistance = document.getElementById('ui-distance');
+        const uiBatText = document.getElementById('ui-bat-text');
+        const batteryBar = document.getElementById('battery-bar');
+        const staminaContainer = document.getElementById('stamina-container');
+        const staminaBar = document.getElementById('stamina-bar');
+        const uiStamText = document.getElementById('ui-stam-text');
+        const uiWarn = document.getElementById('ui-warn');
+        const gameOverScreen = document.getElementById('game-over');
 
         init();
         animate();
 
         function init() {
-            // 1. Scene & Kabut Tebal (Gelap Total di Jauh)
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x010103);
-            scene.fog = new THREE.FogExp2(0x010103, 0.18);
+            scene.background = new THREE.Color(0x010102);
+            scene.fog = new THREE.FogExp2(0x010102, 0.2); // Kabut tebal agar tidak kelihatan ujungnya
 
-            // 2. Kamera
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
-            camera.position.set(0, 1.8, 15); // Mulai dari ujung lorong
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 60);
+            camera.position.set(0, 1.7, START_Z); // Mulai di koordinat Z positif, maju ke arah Z negatif
 
-            // 3. Renderer dengan Bayangan Realistis
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             document.body.appendChild(renderer.domElement);
 
-            // 4. Kontrol Kamera & Mouse Lock
             controls = new PointerLockControls(camera, document.body);
-
             blocker.addEventListener('click', () => {
                 controls.lock();
-                startHorrorAudio(); // Jalankan suara hantu saat klik masuk
+                startHorrorAudio();
             });
             controls.addEventListener('lock', () => blocker.style.display = 'none');
-            controls.addEventListener('unlock', () => blocker.style.display = 'flex');
+            controls.addEventListener('unlock', () => { if(gameOverScreen.style.display !== 'flex') blocker.style.display = 'flex'; });
 
             setupInput();
 
-            // 5. Pencahayaan Horor
-            ambientLight = new THREE.AmbientLight(0x020205); // Sangat gelap
+            // Lighting
+            ambientLight = new THREE.AmbientLight(0x010103);
             scene.add(ambientLight);
 
-            // Senter Pemain
-            flashlight = new THREE.SpotLight(0xfff8e7, 4, 22, Math.PI / 5, 0.6, 1.2);
+            flashlight = new THREE.SpotLight(0xfff5df, 4, 25, Math.PI / 5, 0.6, 1.2);
             flashlight.castShadow = true;
-            flashlight.shadow.mapSize.width = 2048;
-            flashlight.shadow.mapSize.height = 2048;
             scene.add(flashlight);
             flashlight.target = new THREE.Object3D();
             scene.add(flashlight.target);
 
-            // Lampu Rusak di Tengah Lorong
-            ceilingLight = new THREE.PointLight(0xddffdd, 1.5, 12);
-            ceilingLight.position.set(0, 3.5, 0);
-            ceilingLight.castShadow = true;
-            scene.add(ceilingLight);
-
-            // 6. Membuat Map & Objek Rumah Sakit
-            buildHospital();
+            // Buat Dunianya (Lorong 1000 Meter)
+            buildMegaHospital();
 
             window.addEventListener('resize', onWindowResize);
         }
 
-        // FUNGSI MEMBUAT TEKSTUR DINDING KOTOR & BERDARAH SECARA OTOMATIS
         function createProceduralTexture() {
             const canvas = document.createElement('canvas');
-            canvas.width = 512;
-            canvas.height = 512;
+            canvas.width = 512; canvas.height = 512;
             const ctx = canvas.getContext('2d');
-
-            // Warna dasar cat rumah sakit usang
-            ctx.fillStyle = '#4d5447';
-            ctx.fillRect(0, 0, 512, 512);
-
-            // Efek Lumut/Kotoran
-            for (let i = 0; i < 80; i++) {
-                ctx.fillStyle = `rgba(20, 25, 15, ${Math.random() * 0.2})`;
-                ctx.fillRect(Math.random() * 512, Math.random() * 512, Math.random() * 100, Math.random() * 100);
+            ctx.fillStyle = '#42493d'; ctx.fillRect(0, 0, 512, 512);
+            // Efek kotor berlumut
+            for (let i = 0; i < 150; i++) {
+                ctx.fillStyle = `rgba(15, 20, 10, ${Math.random() * 0.25})`;
+                ctx.fillRect(Math.random()*512, Math.random()*512, Math.random()*120, Math.random()*120);
             }
-
-            // Efek Cipratan Darah Tua
-            for (let i = 0; i < 5; i++) {
-                ctx.fillStyle = `rgba(90, 5, 5, ${Math.random() * 0.6})`;
-                ctx.beginPath();
-                ctx.arc(Math.random() * 512, Math.random() * 512, Math.random() * 30, 0, Math.PI * 2);
-                ctx.fill();
+            // Bercak darah
+            for (let i = 0; i < 12; i++) {
+                ctx.fillStyle = `rgba(80, 0, 0, ${Math.random() * 0.5})`;
+                ctx.beginPath(); ctx.arc(Math.random()*512, Math.random()*512, Math.random()*35, 0, Math.PI*2); ctx.fill();
             }
-
             const texture = new THREE.CanvasTexture(canvas);
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(1, 1);
             return texture;
         }
 
-        function buildHospital() {
+        function buildMegaHospital() {
             const wallTex = createProceduralTexture();
             const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.9 });
-            const floorMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.4 });
-            const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x161616, roughness: 0.5 });
+            const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x0f0f0f });
 
-            // Lorong (Lebar 6, Tinggi 4, Panjang 40)
-            const floorGeo = new THREE.PlaneGeometry(6, 40);
+            // Panjang lorong 1000 Unit (dari Z = 500 sampai Z = -500)
+            const floorGeo = new THREE.PlaneGeometry(6, 1000);
             const floor = new THREE.Mesh(floorGeo, floorMat);
             floor.rotation.x = -Math.PI / 2;
             floor.receiveShadow = true;
@@ -196,82 +194,112 @@
             ceiling.position.y = 4;
             scene.add(ceiling);
 
-            // Dinding Kiri & Kanan
-            const wallGeo = new THREE.PlaneGeometry(40, 4);
+            // Dinding Kiri & Kanan (Panjang 1000)
+            const wallGeo = new THREE.PlaneGeometry(1000, 4);
             const leftWall = new THREE.Mesh(wallGeo, wallMat);
-            leftWall.position.set(-3, 2, 0);
-            leftWall.rotation.y = Math.PI / 2;
-            leftWall.receiveShadow = true;
-            scene.add(leftWall);
+            leftWall.position.set(-3, 2, 0); leftWall.rotation.y = Math.PI / 2;
+            leftWall.receiveShadow = true; scene.add(leftWall);
 
             const rightWall = new THREE.Mesh(wallGeo, wallMat);
-            rightWall.position.set(3, 2, 0);
-            rightWall.rotation.y = -Math.PI / 2;
-            rightWall.receiveShadow = true;
-            scene.add(rightWall);
+            rightWall.position.set(3, 2, 0); rightWall.rotation.y = -Math.PI / 2;
+            rightWall.receiveShadow = true; scene.add(rightWall);
 
-            // Dinding Ujung Belakang & Depan
-            const endWallGeo = new THREE.PlaneGeometry(6, 4);
-            const backWall = new THREE.Mesh(endWallGeo, wallMat);
-            backWall.position.set(0, 2, -20);
-            scene.add(backWall);
+            // Tembok Penutup Ujung Belakang & Depan
+            const capGeo = new THREE.PlaneGeometry(6, 4);
+            const backCap = new THREE.Mesh(capGeo, wallMat);
+            backCap.position.set(0, 2, 500); backCap.rotation.y = Math.PI;
+            scene.add(backCap);
 
-            const frontWall = new THREE.Mesh(endWallGeo, wallMat);
-            frontWall.position.set(0, 2, 20);
-            frontWall.rotation.y = Math.PI;
-            scene.add(frontWall);
+            const frontCap = new THREE.Mesh(capGeo, wallMat);
+            frontCap.position.set(0, 2, -500);
+            scene.add(frontCap);
 
-            // Tambahan Properti: Kasur Rumah Sakit Berkarat (Gurney)
-            createGurney(0, 0, -5);
-            createGurney(-2.2, 0, 8);
+            // Taruh Lampu Kedip Atas & Kasur Rumah Sakit di sepanjang 1000 Meter secara acak
+            for (let z = 450; z > -480; z -= 35) {
+                // Lampu langit-langit berkala
+                let light = new THREE.PointLight(0xccffcc, 1.2, 10);
+                light.position.set(0, 3.8, z);
+                scene.add(light);
+                ceilingLights.push(light);
+
+                // Buat Kasur (Gurney) penghalang jalan secara zig-zag
+                let xOffset = (Math.random() > 0.5) ? -1.5 : 1.5;
+                if(Math.random() > 0.2) {
+                    createPhysicalGurney(xOffset, 0, z + (Math.random()*5));
+                }
+            }
         }
 
-        function createGurney(x, y, z) {
+        // MEMBUAT BENDA YANG MEMILIKI FISIK (TIDAK BISA DITEMBUS)
+        function createPhysicalGurney(x, y, z) {
             const group = new THREE.Group();
-            const ironMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.8 });
-            const mattressMat = new THREE.MeshStandardMaterial({ color: 0x555e52, roughness: 0.7 });
+            const ironMat = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.7 });
+            const matMat = new THREE.MeshStandardMaterial({ color: 0x3d453b });
 
-            // Alas Kasur
-            const base = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.1, 2.5), mattressMat);
-            base.position.y = 0.8;
-            base.castShadow = true;
-            group.add(base);
+            const base = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.2, 2.6), matMat);
+            base.position.y = 0.8; base.castShadow = true; group.add(base);
 
-            // Kaki-kaki Besi
             const legGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.8);
-            const positions = [[0.5, 0.4, 1], [-0.5, 0.4, 1], [0.5, 0.4, -1], [-0.5, 0.4, -1]];
-            positions.forEach(pos => {
+            const legsPos = [[0.5, 0.4, 1], [-0.5, 0.4, 1], [0.5, 0.4, -1], [-0.5, 0.4, -1]];
+            legsPos.forEach(p => {
                 const leg = new THREE.Mesh(legGeo, ironMat);
-                leg.position.set(pos[0], pos[1], pos[2]);
-                leg.castShadow = true;
-                group.add(leg);
+                leg.position.set(p[0], p[1], p[2]); leg.castShadow = true; group.add(leg);
             });
 
             group.position.set(x, y, z);
             scene.add(group);
+
+            // BUAT BOUNDING BOX UNTUK DETEKSI TABRAKAN
+            // Ukuran box dilebihkan sedikit agar pemain terhalang dengan pas
+            const box = new THREE.Box3().setFromObject(group);
+            gurneyBoxes.push(box);
         }
 
-        // EFEK SUARA HOROR SINTETIS (Web Audio API - Canggih Tanpa Perlu File Eksternal)
+        function spawnMonster() {
+            monsterActive = true;
+            staminaContainer.style.display = 'block'; // Unlock UI stamina lari
+
+            // Visual Monster: Sosok Bayangan Hitam Tinggi dengan Mata Merah Menyala
+            const monsterGroup = new THREE.Group();
+            const bodyMat = new THREE.MeshBasicMaterial({ color: 0x050505 });
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 2.5), bodyMat);
+            body.position.y = 1.25; monsterGroup.add(body);
+
+            // Mata Merah Menyala
+            const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.06), eyeMat);
+            eyeL.position.set(-0.15, 2.2, -0.3); monsterGroup.add(eyeL);
+            const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.06), eyeMat);
+            eyeR.position.set(0.15, 2.2, -0.3); monsterGroup.add(eyeR);
+
+            // Spawn monster 25 meter di BELAKANG pemain saat ini
+            monsterGroup.position.set(camera.position.x, 0, camera.position.z + 25);
+            scene.add(monsterGroup);
+            monster = monsterGroup;
+
+            // Naikkan nada suara ambience jadi panik
+            if(audioCtx) {
+                chaseOsc = audioCtx.createOscillator();
+                const chaseGain = audioCtx.createGain();
+                chaseOsc.type = 'sawtooth';
+                chaseOsc.frequency.setValueAtTime(60, audioCtx.currentTime);
+                chaseGain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                chaseOsc.connect(chaseGain); chaseGain.connect(audioCtx.destination);
+                chaseOsc.start();
+            }
+        }
+
         function startHorrorAudio() {
             if (audioCtx) return;
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-            // Suara Ambience Rendah (Mencekam)
             horrorDrone = audioCtx.createOscillator();
             const droneGain = audioCtx.createGain();
             const filter = audioCtx.createBiquadFilter();
-
-            horrorDrone.type = 'sawtooth';
-            horrorDrone.frequency.setValueAtTime(45, audioCtx.currentTime); // Frekuensi super rendah bas
-
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(100, audioCtx.currentTime);
-
-            droneGain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-
-            horrorDrone.connect(filter);
-            filter.connect(droneGain);
-            droneGain.connect(audioCtx.destination);
+            horrorDrone.type = 'sine'; horrorDrone.frequency.setValueAtTime(40, audioCtx.currentTime);
+            filter.type = 'lowpass'; filter.frequency.setValueAtTime(80, audioCtx.currentTime);
+            droneGain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            horrorDrone.connect(filter); filter.connect(droneGain); droneGain.connect(audioCtx.destination);
             horrorDrone.start();
         }
 
@@ -282,36 +310,39 @@
                     case 'KeyA': moveLeft = true; break;
                     case 'KeyS': moveBackward = true; break;
                     case 'KeyD': moveRight = true; break;
-                    case 'KeyF': // Tombol Saklar Senter
-                        flashlightOn = !flashlightOn;
-                        uiStatus.innerText = `Senter: ${flashlightOn ? 'ON' : 'OFF'}`;
+                    case 'ShiftLeft': isSprinting = true; break;
+                    case 'KeyF': 
+                        if(battery > 0) {
+                            flashlightOn = !flashlightOn;
+                        }
                         break;
                 }
             });
-
             document.addEventListener('keyup', (e) => {
                 switch (e.code) {
                     case 'KeyW': moveForward = false; break;
                     case 'KeyA': moveLeft = false; break;
                     case 'KeyS': moveBackward = false; break;
                     case 'KeyD': moveRight = false; break;
+                    case 'ShiftLeft': isSprinting = false; break;
                 }
             });
         }
 
         function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
+            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
         function animate() {
             requestAnimationFrame(animate);
-
             const time = performance.now();
 
             if (controls.isLocked === true) {
                 const delta = (time - prevTime) / 1000;
+
+                // Simpan posisi sebelum bergerak (untuk pencegahan tembus benda/collision)
+                const oldPosition = camera.position.clone();
 
                 velocity.x -= velocity.x * 10.0 * delta;
                 velocity.z -= velocity.z * 10.0 * delta;
@@ -320,47 +351,144 @@
                 direction.x = Number(moveRight) - Number(moveLeft);
                 direction.normalize();
 
-                if (moveForward || moveBackward) velocity.z -= direction.z * 28.0 * delta;
-                if (moveLeft || moveRight) velocity.x -= direction.x * 28.0 * delta;
+                // SISTEM METERS & STAMINA SPRINT
+                let currentMoveSpeed = 24.0; // Kecepatan jalan biasa
+
+                if (monsterActive && isSprinting && (moveForward || moveLeft || moveRight) && canSprint && stamina > 0) {
+                    currentMoveSpeed = 48.0; // Kecepatan Lari Kilat
+                    stamina -= 22 * delta; // Konsumsi stamina (agak cepat habis)
+                    if (stamina <= 0) {
+                        stamina = 0;
+                        canSprint = false; // Lelah total!
+                        uiWarn.style.display = 'block';
+                    }
+                } else {
+                    // Pemulihan Stamina
+                    if (stamina < 100) {
+                        stamina += 10 * delta; // Pulih perlahan (seharga lambat)
+                        if (!canSprint && stamina >= 25) { // Harus pulih minimal 25% (seperempat) baru bisa lari lagi
+                            canSprint = true;
+                            uiWarn.style.display = 'none';
+                        }
+                    }
+                }
+                uiStamText.innerText = Math.floor(stamina) + "%";
+                staminaBar.style.width = stamina + "%";
+                if(!canSprint) staminaBar.style.backgroundColor = '#ff3333';
+                else staminaBar.style.backgroundColor = '#0088ff';
+
+                if (moveForward || moveBackward) velocity.z -= direction.z * currentMoveSpeed * delta;
+                if (moveLeft || moveRight) velocity.x -= direction.x * currentMoveSpeed * delta;
 
                 controls.moveRight(-velocity.x * delta);
                 controls.moveForward(-velocity.z * delta);
 
-                // Batasan dinding (Collision)
-                if (camera.position.x > 2.5) camera.position.x = 2.5;
-                if (camera.position.x < -2.5) camera.position.x = -2.5;
-                if (camera.position.z > 19.0) camera.position.z = 19.0;
-                if (camera.position.z < -19.0) camera.position.z = -19.0;
+                // --- SISTEM COLLISION (ANTI-TEMBUS BENDA) ---
+                // Buat kotak imajiner di sekitar posisi baru pemain
+                const playerBox = new THREE.Box3(
+                    new THREE.Vector3(camera.position.x - 0.3, 0, camera.position.z - 0.3),
+                    new THREE.Vector3(camera.position.x + 0.3, 3, camera.position.z + 0.3)
+                );
+
+                let isColliding = false;
+                for (let i = 0; i < gurneyBoxes.length; i++) {
+                    if (playerBox.intersectsBox(gurneyBoxes[i])) {
+                        isColliding = true;
+                        break;
+                    }
+                }
+
+                // Batasi juga agar tidak menembus tembok luar lorong kiri/kanan
+                if (camera.position.x > 2.6 || camera.position.x < -2.6 || isColliding) {
+                    // Jika tabrakan, kembalikan posisi ke sebelum melangkah
+                    camera.position.copy(oldPosition);
+                }
+
+                // Jaga batas ujung lorong murni 1000m
+                if (camera.position.z > START_Z) camera.position.z = START_Z;
+                if (camera.position.z < -495) {
+                    // MENANG! Jika sampai ujung 1000 meter
+                    alert("Kamu berhasil lolos dari rumah sakit maut!");
+                    controls.unlock();
+                    window.location.reload();
+                }
+
+                // Update Jarak Ditempuh dalam Meter
+                distanceTraveled = Math.floor(START_Z - camera.position.z);
+                uiDistance.innerText = distanceTraveled;
+
+                // TRIGGER MONSTER JIKA SUDAH BERJALAN 200 METER
+                if (distanceTraveled >= 200 && !monsterActive) {
+                    spawnMonster();
+                }
             }
 
             prevTime = time;
 
-            // Logika Arah Senter Mengikuti Kamera
-            if (flashlight) {
+            // LOGIKA BATERAI SENTER (AWET TAPI PASTI HABIS)
+            if (flashlight && flashlightOn) {
                 flashlight.position.copy(camera.position);
-                const dirVector = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-                flashlight.target.position.copy(camera.position).add(dirVector);
+                const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+                flashlight.target.position.copy(camera.position).add(dir);
 
-                // Efek Senter Rusak (Glitching Flashlight)
-                if (flashlightOn) {
-                    if (Math.random() > 0.98) { 
-                        flashlight.intensity = Math.random() * 0.5; // Tiba-tiba redup kedip
+                // Pengurangan baterai yang irit (kurang lebih bertahan 3 menit menyala terus)
+                if (battery > 0) {
+                    battery -= 0.5 * (performance.now() - time ? 0.016 : 0.01); 
+                    if(battery < 0) battery = 0;
+                    
+                    batteryBar.style.width = battery + "%";
+                    uiBatText.innerText = Math.floor(battery) + "%";
+
+                    // Efek kedip saklar bawaan kalau baterai sekarat di bawah 25%
+                    if (battery < 25 && Math.random() > 0.95) {
+                        flashlight.intensity = Math.random() * 0.8;
                     } else {
                         flashlight.intensity = 4;
                     }
                 } else {
+                    flashlightOn = false;
                     flashlight.intensity = 0;
+                    uiBatText.innerText = "HABIS";
+                    batteryBar.style.width = "0%";
+                    batteryBar.style.backgroundColor = "#ff0000";
+                }
+            } else if (flashlight) {
+                flashlight.intensity = 0;
+            }
+
+            // PERGERAKAN AI MONSTER MENGEJAR PEMAIN
+            if (monsterActive && monster) {
+                // Monster berjalan konstan mendekati koordinat pemain
+                const monsterSpeed = 4.2; // Sedikit lebih cepat dari jalan kaki biasa pemain, jadi kamu wajib sprint berkala!
+                const deltaSec = 0.016; 
+
+                const dirToPlayer = new THREE.Vector3().subVectors(camera.position, monster.position);
+                dirToPlayer.y = 0; // Tetap di lantai
+                dirToPlayer.normalize();
+
+                monster.position.add(dirToPlayer.multiplyScalar(monsterSpeed * deltaSec));
+                monster.lookAt(camera.position.x, monster.position.y, camera.position.z);
+
+                // Audio Pitching Panik mengikuti jarak monster
+                const dist = monster.position.distanceTo(camera.position);
+                if(chaseOsc) {
+                    chaseOsc.frequency.setValueAtTime(60 + (100 / dist), audioCtx.currentTime);
+                }
+
+                // JUMPSCARE / GAME OVER CONDITION
+                if (dist < 1.3) {
+                    controls.unlock();
+                    gameOverScreen.style.display = 'flex';
+                    if (chaseOsc) chaseOsc.stop();
+                    if (horrorDrone) horrorDrone.stop();
                 }
             }
 
-            // Logika Lampu Langit-langit Berkedip Misterius
-            if (ceilingLight) {
-                if (Math.random() > 0.97) {
-                    ceilingLight.intensity = Math.random() * 2;
-                } else if (Math.random() > 0.99) {
-                    ceilingLight.intensity = 0;
-                }
-            }
+            // Kedipan lampu lorong biasa
+            ceilingLights.forEach(light => {
+                if (Math.random() > 0.98) light.intensity = Math.random() * 2;
+                else if (Math.random() > 0.995) light.intensity = 0;
+            });
 
             renderer.render(scene, camera);
         }
